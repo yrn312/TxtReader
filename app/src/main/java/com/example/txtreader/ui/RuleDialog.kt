@@ -72,6 +72,8 @@ object RuleDialog {
             } else {
                 sb.append("前 4MB 识别到 ${res.chapters.size} 个章节：\n")
             }
+            if (res.recovered > 0) sb.append("其中按章节号自动补全 ${res.recovered} 章\n")
+            if (res.missing.isNotEmpty()) sb.append("疑似缺失：${res.missing.take(10).joinToString("、")}\n")
             res.chapters.take(80).forEachIndexed { i, c ->
                 sb.append("${i + 1}. ${c.title}  [${pctText(c.pos, bf.size)}]\n")
             }

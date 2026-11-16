@@ -137,6 +137,12 @@ class IndexManager(
             val res = BookFile(book).use { bf ->
                 ChapterIndexer.scan(bf, rules) { pct -> setProgress(bookId, pct) }
             }
+            if (res.recovered > 0) messages.tryEmit("已自动补全 ${res.recovered} 个漏掉的章节")
+            if (res.missing.isNotEmpty()) {
+                val shown = res.missing.take(6).joinToString("、")
+                val more = if (res.missing.size > 6) " 等共 ${res.missing.size} 章" else ""
+                messages.tryEmit("疑似缺失：$shown$more（可在目录里手动添加）")
+            }
             db.withTransaction {
                 val manualPos = db.chapterDao().all(bookId).filter { it.manual }.map { it.pos }.toSet()
                 db.chapterDao().deleteAuto(bookId)
